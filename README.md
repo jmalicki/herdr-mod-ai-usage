@@ -1,6 +1,8 @@
-# Herdr Usage
+# Herdr AI Usage
 
-A native sidebar panel for Codex, Claude, Gemini chat, and Antigravity usage, with percentage
+AI subscription usage and reset timers for the **Herdr native desktop app**.
+
+A sidebar panel for Codex, Claude, Gemini chat, and Antigravity usage, with percentage
 bars, reset countdowns, exact local reset times, and a refresh button. Works with
 the Herdr desktop app, independently of Herdr TUI.
 
@@ -22,8 +24,14 @@ If `/usr/bin/python3 --version` asks for developer tools, install Apple's
 The installer deliberately configures `/usr/bin/python3` rather than a Python
 found on `PATH`.
 
-Download and extract a release ZIP, or clone this repository, then run from
-its directory:
+Download and extract a release ZIP, or clone:
+
+```sh
+git clone https://github.com/jmalicki/herdr-mod-ai-usage.git
+cd herdr-mod-ai-usage
+```
+
+Then install from that directory:
 
 ```sh
 /usr/bin/python3 install.py

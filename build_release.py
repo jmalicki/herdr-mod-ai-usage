@@ -33,7 +33,7 @@ def build(name, version, output):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--name', default='herdr-usage')
+    parser.add_argument('--name', default='herdr-mod-ai-usage')
     parser.add_argument('--version', default=(PROJECT / 'VERSION').read_text().strip())
     parser.add_argument('--output', type=Path, default=PROJECT / 'dist')
     args = parser.parse_args()
