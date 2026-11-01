@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ['3.9', '3.13', '3.15']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Python tests
+        run: python -m unittest discover -s tests -v
+      - name: JavaScript tests
+        run: node --test tests/preferences.test.mjs
+      - name: Build release archive
+        run: python build_release.py
+
+  apple-python:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Check Apple-provided Python
+        run: /usr/bin/python3 --version
+      - name: Test on Apple's interpreter
+        run: /usr/bin/python3 -m unittest discover -s tests -v
+      - name: Build with Apple's interpreter
+        run: /usr/bin/python3 build_release.py

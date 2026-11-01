@@ -1,0 +1,15 @@
+__pycache__/
+installation.json
+backups/
+*.png
+*.py[cod]
+.DS_Store
+.venv/
+.env
+.env.*
+dist/
+node_modules/
+gpui-kit.d.ts
+mods/*/jsconfig.json
+mods/*/runner.json
+mods/*/herdr-usage-project.json
