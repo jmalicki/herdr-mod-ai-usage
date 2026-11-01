@@ -169,8 +169,18 @@ quotas and install the mod. There is no compilation or signing step.
 
 CI runs the tests on macOS and Linux with Python 3.9, 3.13 and 3.15, plus
 Node.js 24 for the JavaScript development tests. A separate macOS job tests
-Apple's `/usr/bin/python3` directly without installing another Python. Provider accounts are not needed for tests. The GUI is verified
-locally with Herdr's validator and the running app.
+Apple's `/usr/bin/python3` directly without installing another Python.
+
+Native integration jobs download checksum-verified Herdr GUI/core 0.1.11 on
+macOS ARM64, Linux x64 and Linux ARM64. They install the release ZIP into an
+isolated profile, run the actual helper against synthetic cached quotas, and
+exercise native rendering, narrow/wide sidebars, manual panel resizing,
+automatic fitting and the settings dialog. Linux uses a virtual X11 desktop
+and Mesa software Vulkan; macOS uses its native window and Apple Python.
+Screenshots, status and observations are retained as CI artifacts. A test-only
+subclass observes the shipped view; it is excluded from release archives.
+These tests need no provider accounts and do not test live authentication,
+provider API availability, mouse dragging or Windows GUI behavior.
 
 Pushing a `v*` tag matching `VERSION` runs the tests and creates a GitHub
 release containing an installable source ZIP and SHA-256 checksum. Nothing

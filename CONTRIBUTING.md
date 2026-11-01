@@ -15,8 +15,22 @@ node --test tests/preferences.test.mjs
 
 For interface changes, run `herdr-app check mods/plan-usage`, install into the
 running app with `/usr/bin/python3 install.py`, and check the result there. CI verifies
-parsing, settings behavior, process cleanup and release packaging; it does not
-run the Herdr GUI or query signed-in provider accounts.
+parsing, settings behavior, process cleanup and release packaging. It also runs
+Herdr 0.1.11 on macOS ARM64 and Linux x64/ARM64 using synthetic cached quotas.
+It does not query signed-in provider accounts or simulate mouse dragging.
+
+To run the native integration locally on macOS (opens a separate test window):
+
+```sh
+/usr/bin/python3 tests/native/download_herdr.py /tmp/usage-test-herdr
+/usr/bin/python3 tests/native/run.py --herdr /tmp/usage-test-herdr
+```
+
+On Linux use Python 3.9+ and run the second command under `xvfb-run -a` when
+there is no desktop session. Install Mesa Vulkan drivers and the X11/Wayland
+runtime libraries listed in `.github/workflows/ci.yml`. Results go into the
+ignored `native-results/` directory. The harness isolates app/core state and
+removes its temporary profile on exit; the downloaded binaries remain reusable.
 
 Keep authentication values, personal screenshots, machine-specific files,
 and backups out of commits. Provider parsers must distinguish missing quota

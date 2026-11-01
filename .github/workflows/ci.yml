@@ -10,6 +10,45 @@ permissions:
   contents: read
 
 jobs:
+  native-app:
+    name: Native Herdr (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, ubuntu-22.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.9'
+      - name: Linux virtual desktop and software GPU
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb xauth libxkbcommon-x11-0 libwayland-client0 libvulkan1 mesa-vulkan-drivers libfontconfig1
+      - name: Download verified Herdr GUI and core 0.1.11
+        run: python tests/native/download_herdr.py "$RUNNER_TEMP/herdr"
+      - name: Exercise native macOS app with Apple Python
+        if: runner.os == 'macOS'
+        run: /usr/bin/python3 tests/native/run.py --herdr "$RUNNER_TEMP/herdr"
+      - name: Exercise native Linux app with software Vulkan
+        if: runner.os == 'Linux'
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          WAYLAND_DISPLAY: ''
+        run: xvfb-run -a -s '-screen 0 1400x1000x24' python tests/native/run.py --herdr "$RUNNER_TEMP/herdr"
+      - name: Upload native screenshots and diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: native-herdr-${{ matrix.os }}
+          path: native-results/
+          if-no-files-found: warn
+
   test:
     strategy:
       fail-fast: false

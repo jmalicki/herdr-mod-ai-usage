@@ -13,3 +13,4 @@ gpui-kit.d.ts
 mods/*/jsconfig.json
 mods/*/runner.json
 mods/*/herdr-usage-project.json
+native-results/
