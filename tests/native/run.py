@@ -37,7 +37,7 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     binaries = args.herdr.resolve()
     app = next(binaries.glob('app/**/Contents/MacOS/Herdr'), None)
-    app = app or next(binaries.glob('app/**/herdr-app'))
+    app = app or next(path for path in binaries.glob('app/**/herdr-app') if path.is_file())
     core = next(binaries.glob('core/**/hc'), None)
     core = core or next(binaries.glob('core/**/herdr-core'))
     # Short, private paths keep UNIX socket addresses below macOS's limit.
@@ -47,10 +47,12 @@ def main():
         home.mkdir()
         (root / 'user').mkdir()
         (root / 'bin').mkdir()
+        (root / 'run').mkdir(mode=0o700)
         (root / 'bin/herdr-app').symlink_to(app)
         (root / 'bin/hc').symlink_to(core)
         env = dict(os.environ, HOME=str(root / 'user'), HERDR_APP_HOME=str(home),
                    XDG_CONFIG_HOME=str(root / 'config'), XDG_STATE_HOME=str(root / 'state'),
+                   XDG_RUNTIME_DIR=str(root / 'run'),
                    HC_SESSION='usage-' + root.name, HERDR_APP_NO_SOUND='1',
                    HERDR_TELEMETRY='0', HERDR_RELEASES_URL='http://127.0.0.1:1',
                    PATH=str(root / 'bin') + os.pathsep + os.environ['PATH'])
