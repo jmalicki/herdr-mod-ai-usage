@@ -111,6 +111,11 @@ export default class PlanUsage extends View {
             .when(prefs.exactTimes && Boolean(exact), line => line.child(div().flex_shrink_0().child(exact))))));
     }
     if (!provider.error && !visibleWindows(provider, prefs).length) rows.push(div().text_size(10).text_color(t.dim).child("All limits hidden in Settings"));
+    const availableResets = provider.available_resets;
+    if (provider.name === "Codex" && Number.isInteger(availableResets) && availableResets >= 0) {
+      rows.push(div().text_size(10).text_color(t.dim)
+        .child(`${availableResets} ${availableResets === 1 ? "reset" : "resets"} available${stale ? " · stale" : ""}`));
+    }
     return v_flex().gap(7).children(rows);
   }
 

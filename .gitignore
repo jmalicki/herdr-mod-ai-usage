@@ -2,6 +2,7 @@ __pycache__/
 installation.json
 backups/
 *.png
+!/docs/plan-usage.png
 *.py[cod]
 .DS_Store
 .venv/

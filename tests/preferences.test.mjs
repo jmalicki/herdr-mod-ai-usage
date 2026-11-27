@@ -2,10 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { preferences, enabledProviders, visibleWindows, toggleProvider, toggleWindow } from "../mods/plan-usage/preferences.js";
 
-test("initial display keeps Codex and Claude and suppresses the requested extras", () => {
+test("initial display includes the Fable weekly limit alongside the Claude weekly limit", () => {
   const prefs = preferences();
   assert.deepEqual(enabledProviders(prefs), ["Codex", "Claude"]);
-  assert.deepEqual(visibleWindows({name: "Claude", windows: [{label: "7d"}, {label: "Fable · 7d"}]}, prefs), [{label: "7d"}]);
+  const windows = [{label: "7d"}, {label: "Fable · 7d"}];
+  assert.deepEqual(visibleWindows({name: "Claude", windows}, prefs), windows);
 });
 
 test("provider switches can re-enable and hide without losing window selections", () => {
@@ -18,11 +19,11 @@ test("provider switches can re-enable and hide without losing window selections"
 });
 
 test("individual limits can be restored and do not affect other providers", () => {
-  const prefs = toggleWindow(preferences(), "Claude", "Fable · 7d", true);
   const provider = {name: "Claude", windows: [{label: "Fable · 7d"}]};
-  assert.equal(visibleWindows(provider, prefs).length, 1);
-  assert.equal(visibleWindows(provider, toggleWindow(prefs, "Claude", "Fable · 7d", false)).length, 0);
-  assert.equal(visibleWindows({name: "Codex", windows: provider.windows}, preferences()).length, 1);
+  const hidden = toggleWindow(preferences(), "Claude", "Fable · 7d", false);
+  assert.equal(visibleWindows(provider, preferences(hidden)).length, 0);
+  assert.equal(visibleWindows(provider, toggleWindow(hidden, "Claude", "Fable · 7d", true)).length, 1);
+  assert.equal(visibleWindows({name: "Codex", windows: provider.windows}, hidden).length, 1);
 });
 
 test("saved settings survive default additions and all providers can be hidden", () => {

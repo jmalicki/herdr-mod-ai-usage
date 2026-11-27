@@ -6,6 +6,10 @@ A sidebar panel for Codex, Claude, Gemini chat, and Antigravity usage, with perc
 bars, reset countdowns, exact local reset times, and a refresh button. Works with
 the Herdr desktop app, independently of Herdr TUI.
 
+![Herdr window showing Codex reset credits and Claude Fable usage in the Plan usage sidebar](docs/plan-usage.png)
+
+*Herdr with sample usage data. Five-hour rows appear when the provider reports them.*
+
 ## Install
 
 Tested with Herdr native app 0.1.11 on macOS Apple Silicon.
@@ -58,7 +62,8 @@ switch to another layout, then delete only `layouts/usage.json`,
 ### Display settings
 
 Click **Settings** beside **Plan usage** to show or hide each provider and its
-individual limits. Gemini chat, Antigravity, and the Fable model limit start hidden.
+individual limits. Claude's **Fable · 7d** row is shown by default when Claude
+reports a separate Fable quota. Gemini chat and Antigravity start hidden.
 Enable the displays you want in this dialog. Hidden providers stop refreshing; their last cached limits remain
 available in the settings list so they can be restored.
 
