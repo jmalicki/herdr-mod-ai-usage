@@ -165,6 +165,7 @@ def fetch(name, state):
                 '--input-format', 'stream-json', '--output-format', 'stream-json', '--verbose']
     proc = JsonProcess(args, state)
     try:
+        available_resets = None
         if name == 'Codex':
             proc.send(dict(id=1, method='initialize', params=dict(clientInfo=dict(
                 name='herdr_usage', version='0.1.0'))))
@@ -179,6 +180,11 @@ def fetch(name, state):
             body = reply.get('result') or {}
             rows = codex_windows(body)
             plan = (body.get('rateLimits') or {}).get('planType')
+            reset_credits = body.get('rateLimitResetCredits')
+            if isinstance(reset_credits, dict):
+                count = reset_credits.get('availableCount')
+                if type(count) is int and count >= 0:
+                    available_resets = count
         else:
             proc.send(dict(type='control_request', request_id='herdr-usage',
                            request=dict(subtype='get_usage', skip_behaviors=True)))
@@ -192,7 +198,10 @@ def fetch(name, state):
             plan = body.get('subscription_type')
         if not rows:
             raise RuntimeError('No subscription limits reported for this sign-in')
-        return dict(name=name, windows=rows, plan=plan, observed_at=time.time(), error=None)
+        data = dict(name=name, windows=rows, plan=plan, observed_at=time.time(), error=None)
+        if available_resets is not None:
+            data['available_resets'] = available_resets
+        return data
     finally:
         proc.close()
 
@@ -221,6 +230,8 @@ def collect_provider(name, state, force=False):
             data = dict(name=name, windows=old.get('windows', []),
                         observed_at=old.get('observed_at'), plan=old.get('plan'),
                         error=str(exc) if isinstance(exc, RuntimeError) else 'Could not read usage from CLI')
+            if 'available_resets' in old:
+                data['available_resets'] = old['available_resets']
         data['checked_at'] = time.time()
         fd, temporary = tempfile.mkstemp(dir=state, prefix='.usage-')
         try:

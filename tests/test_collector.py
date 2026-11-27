@@ -25,6 +25,22 @@ class UsageTests(unittest.TestCase):
         self.assertEqual([r['label'] for r in rows], ['5h', '7d', 'Review · 1h'])
         self.assertIsNone(rows[2]['resets_at'])
 
+    def test_codex_fetch_reads_reported_reset_count(self):
+        limits = {'primary': {'usedPercent': 12, 'windowDurationMins': 300}}
+        for credits, expected in (
+            ({'availableCount': 2}, 2),
+            ({'availableCount': 0}, 0),
+            ({'availableCount': True}, None),
+            ({'availableCount': -1}, None),
+            (None, None),
+        ):
+            with self.subTest(credits=credits), patch.object(collector, 'binary', return_value='codex'), \
+                    patch.object(collector, 'JsonProcess') as process:
+                body = dict(rateLimits=limits, rateLimitResetCredits=credits)
+                process.return_value.receive.side_effect = [{'id': 1}, {'id': 2, 'result': body}]
+                data = collector.fetch('Codex', Path('.'))
+                self.assertEqual(data.get('available_resets'), expected)
+
     def test_claude_epoch_iso_and_scoped_models(self):
         rows = collector.claude_windows({'rate_limits': {
             'five_hour': {'used_percentage': 10, 'resets_at': 2000},
@@ -39,12 +55,14 @@ class UsageTests(unittest.TestCase):
     def test_failed_refresh_retains_observed_time_and_marks_error(self):
         with tempfile.TemporaryDirectory() as folder:
             state = Path(folder)
-            old = dict(name='Codex', windows=[dict(used=80)], observed_at=10, checked_at=10)
+            old = dict(name='Codex', windows=[dict(used=80)], observed_at=10, checked_at=10,
+                       available_resets=2)
             (state / 'codex.json').write_text(json.dumps(old))
             with patch.object(collector, 'fetch', side_effect=RuntimeError('Offline')):
                 data = collector.collect_provider('Codex', state)
             self.assertEqual(data['observed_at'], 10)
             self.assertEqual(data['windows'], old['windows'])
+            self.assertEqual(data['available_resets'], 2)
             self.assertEqual(data['error'], 'Offline')
 
     def test_refresh_click_cooldown(self):

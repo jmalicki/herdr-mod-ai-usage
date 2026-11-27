@@ -4,7 +4,7 @@ export const PREFERENCE_KEY = "plan-usage.preferences";
 export function preferences(saved) {
   return {
     hiddenProviders: ["Gemini chat", "Antigravity"],
-    hiddenWindows: { Claude: ["Fable · 7d"] },
+    hiddenWindows: {},
     bars: true,
     countdowns: true,
     exactTimes: true,
